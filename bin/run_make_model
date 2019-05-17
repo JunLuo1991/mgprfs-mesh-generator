@@ -1,0 +1,225 @@
+#! /usr/bin/env bash
+
+eecho()
+{
+	echo "$@" 1>&2
+}
+
+panic()
+{
+	echo "ERROR: $@"
+	exit 1
+}
+
+find_image()
+{
+	local path=(. $HOME/datasets/images)
+	local dir
+	for dir in "${path[@]}"; do
+		#eecho "searching for $1 in $dir"
+		local file="$dir/$1.pnm"
+		if [ -f "$file" ]; then
+			#eecho "found"
+			echo "$file"
+			return
+		fi
+	done
+	#eecho "not found"
+	return 1
+}
+
+cmd_dir=$(dirname "$0") || exit 1
+
+build_dir="$cmd_dir/../tmp_cmake"
+
+make_model="$build_dir/src/make_model"
+rasterize_model="$build_dir/src/rasterize_model"
+
+out_dir=/tmp/junluo
+images=()
+densities=()
+methods=()
+enable_display=0
+suite=
+verbose=0
+
+while getopts d:i:m:o:VT:v option; do
+	case "$option" in
+	i)
+		images+=("$OPTARG");;
+	d)
+		densities+=("$OPTARG");;
+	m)
+		methods+=("$OPTARG");;
+	o)
+		out_dir="$OPTARG";;
+	V)
+		enable_display=1;;
+	T)
+		suite="$OPTARG";;
+	v)
+		verbose=$((verbose + 1));;
+	*)
+		usage;;
+	esac
+done
+shift $((OPTIND - 1))
+
+if [ -n "$suite" ]; then
+	case "$suite" in
+	default)
+		images+=(bull)
+		images+=(lena)
+		images+=(peppers)
+		methods+=(ed)
+		methods+=(gprfsed)
+		methods+=(gprfsmed)
+		methods+=(gpr)
+		#methods+=(gprfsed-ycrcb_vec_se)
+		#methods+=(gpr-three_comps_union)
+		#methods+=(gpr-vector_space_comb)
+		densities+=(0.125)
+		densities+=(0.250)
+		densities+=(0.500)
+		densities+=(1.000)
+		densities+=(2.000)
+		densities+=(3.000)
+		densities+=(4.000)
+		;;
+	*)
+		panic "invalid test suite"
+		;;
+	esac
+fi
+
+if [ ! -d "$out_dir" ]; then
+	mkdir -p "$out_dir" || panic "cannot make output directory $out_dir"
+fi
+
+echo "new" > "$out_dir/run_lawson_lop_version"
+
+for image in "${images[@]}"; do
+
+	image_file=$(find_image "$image") || panic "cannot find image $image"
+
+	for density in "${densities[@]}"; do
+
+		for method in "${methods[@]}"; do
+
+			prefix="$out_dir/${image}@${density}@@${method}@@"
+			model_file="${prefix}model.off"
+			rasterized_file="${prefix}rasterized.pnm"
+			result_file="${prefix}result.txt"
+			suboptimal_file="$data_dir/${prefix}suboptimal"
+			done_file="$data_dir/${prefix}complete"
+
+			touch "$suboptimal_file"
+
+			if [ -f "$done_file" ]; then
+				echo "skipping $image $density $method"
+				continue
+			fi
+
+			cat <<- EOF
+			============================================================
+			IMAGE $image DENSITY $density METHOD $method
+			EOF
+
+			make_model_options=()
+
+			case "$method" in
+			ed|ed-*)
+				make_model_options+=(--density "$density")
+				make_model_options+=(--initial-density "$density")
+				make_model_options+=(--initial-generator ed)
+				make_model_options+=(--bad-point-removal 0)
+				;;
+			gprfsed|gprfsed-*)
+				#initial_density=$(echo "$density * 4" | bc -l) || panic
+				#make_model_options+=(--initial-density "$initial_density")
+				make_model_options+=(--density "$density")
+				make_model_options+=(--relative-initial-density 400)
+				make_model_options+=(--initial-generator ed)
+				make_model_options+=(--bad-point-removal 0)
+				;;
+			gprfsmed)
+				make_model_options+=(--density "$density")
+				make_model_options+=(--initial-density "$density")
+				make_model_options+=(--initial-generator ed)
+				make_model_options+=(--bad-point-removal 1)
+				;;
+			gpr|gpr-*)
+				make_model_options+=(--density "$density")
+				make_model_options+=(--initial-density 100)
+				make_model_options+=(--initial-generator all)
+				make_model_options+=(--bad-point-removal 0)
+				;;
+			default|*)
+				;;
+			esac
+
+			if [ 0 -ne 0 ]; then
+				case "$method" in
+				*-three_comps_union)
+					make_model_options+=(--ed-strategy three_comps_union)
+					;;
+				*-vector_space_comb)
+					make_model_options+=(--ed-strategy vector_space_comb)
+					;;
+				*)
+					panic
+					;;
+				esac
+			else
+				#echo "nop"
+				true
+			fi
+
+			if [ 0 -ne 0 ]; then
+				case "$method" in
+				*-vec_se)
+					make_model_options+=(--error-metric vec_se)
+					;;
+				*-ycrcb_vec_se)
+					make_model_options+=(--error-metric ycrcb_vec_se)
+					;;
+				*)
+					make_model_options+=(--error-metric mean_comp_se)
+					;;
+				esac
+			else
+				make_model_options+=(--error-metric mean_comp_se)
+				#make_model_options+=(--error-metric vec_se)
+			fi
+
+			if [ "$verbose" -ne 0 ]; then
+				echo "Running $make_model ${make_model_options[@]} < $image_file > $model_file"
+			fi
+			"$make_model" "${make_model_options[@]}" \
+			  < "$image_file" > "$model_file" || panic
+
+			rasterize_model_options=()
+			rasterize_model_options+=(-i "$model_file")
+			rasterize_model_options+=(-o "$rasterized_file")
+			if [ "$verbose" -ne 0 ]; then
+				echo "Running $rasterize_model ${rasterize_model_options[@]}"
+			fi
+			"$rasterize_model" "${rasterize_model_options[@]}" || panic
+
+			psnr=$(imgcmp -F "$image_file" -f "$rasterized_file" -m psnr) || panic
+			echo "PSNR $psnr"
+			echo "$psnr" > "$result_file"
+
+			if [ "$enable_display" -ne 0 ]; then
+				name="$method-$density"
+				xv -name "$name $psnr" "$rasterized_file" &
+			fi
+
+			touch "$done_file" || panic
+
+		done
+
+	done
+
+done
+

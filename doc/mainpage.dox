@@ -1,0 +1,30 @@
+/*!
+
+@mainpage Mesh Generator Software
+ File make_model.cpp contains the main function of the make_model program.
+
+ File mesh_generator.hpp contains the interface of a Mesh_generator class 
+ which can be used to generate triangle mesh from an PNM image.
+
+ File error_diffusion.hpp contains some error diffusion related enumerations
+ and functions.
+
+ File image.hpp contains the interface of an image class.
+
+ File pixel.hpp contains a template pixel class.
+
+ File util.hpp contains some utility helper functions.
+
+ File debug.hpp contains the setting of debugging information.
+
+ File scan_triangle.hpp contains the functions to do linear interpolation over
+ a triangulation face.
+
+ File rasterize_helper.hpp contains some helper function for doing the linear
+ interpolation process.
+
+ File rasterize_model.cpp constains the main function of the rasterize_model program.
+
+*/
+
+//@mainpage notitle

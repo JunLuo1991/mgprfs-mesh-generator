@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+panic()
+{
+	echo "ERROR: $@"
+	exit 1
+}
+
+if [ ! -f "README" ]; then
+	panic "This command must be run from the top-level directory"
+fi
+
+options=()
+
+if [ $# -gt 0 ]; then
+	options+=(-DENABLE_ASAN=true)
+	options+=(-DENABLE_UBSAN=true)
+fi
+
+cmake -H. -Btmp_cmake "${options[@]}" || panic "build-file generation failed"
+cmake --build tmp_cmake || panic "build failed"
