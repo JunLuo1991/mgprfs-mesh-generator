@@ -421,7 +421,3 @@ void for_each_face_in_region(T& tri,
 }
 
 #endif
-
-
-
-

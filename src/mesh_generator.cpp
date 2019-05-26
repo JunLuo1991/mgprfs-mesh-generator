@@ -741,6 +741,7 @@ int Mesh_generator::simplify_mesh()
     return 0;
   }
 
+  // repeatly remove a point until target size/error is achieved
   while (1) {
     // If target size is specified and reached, break
     if (target_size_ > 0 && tri_.number_of_vertices() <= target_size_) {
@@ -780,13 +781,13 @@ void Mesh_generator::postprocess_mesh()
 
 int Mesh_generator::output_mesh(std::ostream& out) const
 {
-#if 0
-	mesh format is as following:
+/*********************************************
+	The mesh format is as following:
 		WIDTH HEIGHT
 		NUM_COMPONENTS PRECISION
 		{OFF_DATA}
 
-#endif
+*********************************************/
 
   // output header
   out << ori_input_image_.width() << " " << ori_input_image_.height() << '\n'
@@ -1333,13 +1334,13 @@ bool Mesh_generator::select_point_for_removal(Triangulation::Vertex_handle& vert
 
 void Mesh_generator::remove_point(Triangulation::Vertex_handle vertex)
 {
-#if 0
+/********************************************
  pseudocode:
 	record 1-ring neighbours
 	delete vertex
 	for each affected vertex
 		update_vertex_priority
-#endif
+*********************************************/
 
   // record 1-ring affected vertices
   std::vector<Triangulation::Vertex_handle> affected_vertices;
@@ -1457,16 +1458,17 @@ void Mesh_generator::invalidate_face_errs()
 
 void Mesh_generator::update_vertex_priority(Triangulation::Vertex_handle vertex)
 {
-#if 0
+/***************************************************
 pseudocode:
 	record edges incident on hole to be formed
 	save old errors + other states
 	remove from priority queue
-	delete vertex
+	delete vertex from tri
 	scan convert new faces
 	compute new error
-	add vertex back
-#endif
+	add vertex back to tri
+        add vertex back to priority queue
+****************************************************/
 
   double err0 = 0;
   double err1 = 0;

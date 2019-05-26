@@ -94,6 +94,8 @@ void get_derivative_filter(int x_order, int y_order,
   SPL::RealSequence1 second_order_filter = SPL::RealSequence1(-1, 3, mask2);
   SPL::RealSequence1 delta(0, 1, 1.0);
 
+  // set the horizontal and vertical filters based on the specified
+  // x and y orders
   if ((x_order == 1 && y_order == 0)) {
     horz_filter = first_order_filter;
     vert_filter = delta;
@@ -128,11 +130,14 @@ void get_smoothing_and_derivative_filters(int x_order, int y_order,
   SPL::RealSequence1 delta(0, 1, 1.0);
   Smooth_direction smooth_direction = smooth_options.smooth_direction_;
 
+  // Get the derivative filter based on specified x and y orders
   get_derivative_filter(x_order, y_order, horz_deriv_filter, vert_deriv_filter);
 
+  // Get the smooth filter
   get_smooth_filter(smooth_options.smooth_order_,
                     smooth_options.smooth_operator_, smooth_filter);
 
+  // Set the horizontal and vertical smooth filters based on the smooth direction
   if (smooth_direction == Smooth_direction::both) {
     horz_smooth_filter = smooth_filter;
     vert_smooth_filter = smooth_filter;
@@ -149,8 +154,12 @@ void get_smoothed_image(const SPL::Array2<double>& input,
   SPL::RealSequence2 f(input);
   SPL::RealSequence2 result_seq;
   SPL::RealSequence1 smooth_filter;
+
+  // Get the smooth filter
   get_smooth_filter(smooth_options.smooth_order_,
                     smooth_options.smooth_operator_, smooth_filter);
+
+  // Smooth the image
   result_seq = SPL::convolveSeparable(f, smooth_filter, smooth_filter,
                                       smooth_options.bound_policy_);
   result = result_seq.getArray();
@@ -171,19 +180,28 @@ void get_smoothed_derivative(const SPL::Array2<double>& input, int x_order,
   SPL::RealSequence1 horz_deriv_filter;
   SPL::RealSequence1 vert_deriv_filter;
 
+  // Get the smooth and derivative filters
   get_smoothing_and_derivative_filters(x_order, y_order, smooth_options,
      horz_smooth_filter, vert_smooth_filter, horz_deriv_filter, vert_deriv_filter);
 
-  // if chosing smoothing image first and then convolve with derivative filter
+  // if choosing smoothing image first and then convolve with derivative filter
   if (use_double_convolution) {
+
+    // smooth the image
     smoothed_seq = SPL::convolveSeparable(
       f, horz_smooth_filter, vert_smooth_filter, smooth_options.bound_policy_);
 
+    // convolve with the derivative filters
     result_seq = SPL::convolveSeparable(
       smoothed_seq, horz_deriv_filter, vert_deriv_filter, derivative_bound_policy);
   } else {
+
+    // convolve the smooth and derivative filters to get 
+    // one horizontal filter and vertical filter
     auto horz_filter = SPL::convolve(horz_smooth_filter, horz_deriv_filter);
     auto vert_filter = SPL::convolve(vert_smooth_filter, vert_deriv_filter);
+
+    // convolve the filters with the image
     result_seq = SPL::convolveSeparable(f, horz_filter, vert_filter,
                                         derivative_bound_policy);
   }
@@ -203,8 +221,12 @@ void get_mag_laplacian_grayscale(const SPL::Array2<double>& input,
 
   SPL::Array2<double> fxx(width, height);
   SPL::Array2<double> fyy(width, height);
+
+  // get fxx of the image
   get_smoothed_derivative(input, 2, 0, derivative_bound_policy, smooth_options,
                           use_double_convolution, fxx);
+
+  // get fyy of the image
   get_smoothed_derivative(input, 0, 2, derivative_bound_policy, smooth_options,
                           use_double_convolution, fyy);
 

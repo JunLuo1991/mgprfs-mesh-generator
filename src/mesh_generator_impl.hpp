@@ -25,6 +25,8 @@ inline bool
 Vertex_priority_queue_compare::operator()(const Mesh_vertex* v1,
                                           const Mesh_vertex* v2) const
 {
+  // If two vertices have the same significance value, then compare their
+  // coordinate positions; otherwise, compare their significance values
   return (v1->get_sig() != v2->get_sig()) ? 
     (v1->get_sig() > v2->get_sig()) : (v1->point() > v2->point());
 }

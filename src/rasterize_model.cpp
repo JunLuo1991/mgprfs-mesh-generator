@@ -41,7 +41,9 @@ face and output the rasterized result as an image file in PNM/PPM/PGM format.
 #include "rasterize_helper.hpp"
 #include "scan_triangle.hpp"
 
-// The make triangulation data structure
+/*!
+@brief  A structure for making triangulation.
+*/
 struct Make_tri
 {
   class Tri_vertex;
@@ -67,16 +69,21 @@ struct Make_tri
 
 using Tri = Make_tri::Triangulation;
 
-// Read the off data into a triangulation from specified input stream
-int
-input_off_model(std::istream& in, Tri& tri)
+/*!
+@brief
+Read the OFF data into a triangulation from specified input stream.
+@param in  The input stream to be read from.
+@param tri  The triangulation object.
+@return
+Upon success, return zero; otherwise, a non-zero value is returned.
+*/
+int input_off_model(std::istream& in, Tri& tri)
 {
 
   auto set_vertex_z = [](Tri::Vertex_handle v, double z) { v->z = z; };
   auto set_vertex_color = [](Tri::Vertex_handle v,
                              const std::vector<double>& color, bool as_int) {
     assert(color.size() == 4);
-    // we only need the r,g,b components, ignore the alpha component here
     std::copy(color.begin(), color.begin() + 3, v->color.begin());
   };
 
@@ -89,29 +96,32 @@ input_off_model(std::istream& in, Tri& tri)
 }
 
 /*!
-@brief Scan a triangulation face and write the scan-converted
-data into recon_image.
-@tparam N number of components in the image.
-@param face A Face_const_handle that refers to the scanned face.
-@param recon_image The re-constructed image,
+@brief
+Scan a triangulation face and write the scan-converted data
+into recon_image.
+@tparam N  Number of components in the image.
+@param face  A Face_const_handle that refers to the scanned face.
+@param recon_image  The re-constructed image.
 */
 template <std::size_t N>
 void scan_face(Tri::Face_const_handle face, Image& recon_image)
 {
   Tri::Halfedge_const_handle h = face->halfedge();
-  std::array<Tri::Vertex_const_handle, 3> vs{
-    { h->vertex(), h->next()->vertex(), h->prev()->vertex() }
-  };
+  std::array<Tri::Vertex_const_handle, 3> vs {{
+     h->vertex(),
+     h->next()->vertex(),
+     h->prev()->vertex()
+  }};
 
-  std::array<Tri::Point, 3> ps{ { vs[0]->point(), vs[1]->point(),
-                                  vs[2]->point() } };
+  std::array<Tri::Point, 3> ps {{
+    vs[0]->point(),
+    vs[1]->point(),
+    vs[2]->point()
+  }};
 
   Scan_stats stats;
   int flags = Scan_triangle_options::write_scan_buf;
   Image ori_image;
-  // The error metric doesn't matter which one to select here since
-  // we are only trying to get the recon image, doesn't care about
-  // the error statistics.
   Error_metric error_metric = Error_metric::mean_comp_se;
 
   if (N == 1) {
@@ -163,6 +173,7 @@ int main(int argc, char** argv)
   int prec = 0;
   int num_comps = 0;
   Tri tri;
+  // Read the triangle mesh model
   if (!in_file_name.empty()) {
     std::ifstream in(in_file_name);
     if (in.is_open()) {
@@ -203,6 +214,7 @@ int main(int argc, char** argv)
     }
   }
 
+  // output the reconstructed image
   if (!out_file_name.empty()) {
     std::ofstream out(out_file_name);
     if (out.is_open()) {
