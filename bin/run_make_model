@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+# This script is used to run the make_model program with
+# specified program options, e.g., densities, methods, images
+
 eecho()
 {
 	echo "$@" 1>&2
@@ -43,16 +46,17 @@ enable_display=0
 suite=
 verbose=0
 
+# The command line options
 while getopts d:i:m:o:VT:v option; do
 	case "$option" in
 	i)
-		images+=("$OPTARG");;
+		images+=("$OPTARG");;  # the target image
 	d)
-		densities+=("$OPTARG");;
+		densities+=("$OPTARG");;  # the target density
 	m)
-		methods+=("$OPTARG");;
+		methods+=("$OPTARG");;  # the method to use
 	o)
-		out_dir="$OPTARG";;
+		out_dir="$OPTARG";;   # output directory
 	V)
 		enable_display=1;;
 	T)
