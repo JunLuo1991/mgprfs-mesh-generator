@@ -25,7 +25,8 @@
 @file off_to_triangulation.cpp
 @brief
 This program reads a triangle mesh model in MODEL (i.e., header + OFF) format
-and output the triangulation file in TRI fomrat.
+from standard input stream and output the triangulation in TRI fomrat to
+standard output stream.
 */
 
 #include <CGAL/Cartesian.h>
@@ -51,6 +52,9 @@ struct Tri_traits
     using Halfedge = SPL::Triangulation_halfedge_base_2<Tri_traits>;
 };
 
+/*
+@brief  A class representing the customized triangulation vertex
+*/
 class Tri_vertex : public SPL::Triangulation_hierarchy_vertex_base_2<Tri_traits>
 {
 public:
@@ -66,7 +70,14 @@ public:
   using Tri = SPL::Delaunay_triangulation_2<Tri_traits>;
 #endif
 
-
+/*
+@brief
+Read the OFF data into a triangulation from the sepcified stream.
+@param in  The input stream to be read from.
+@param tri  The triangulation object.
+@return
+Upon success, return zero; otherwise, a non-zero value is returned.
+*/
 int input_off_model(std::istream& in, Tri& tri)
 {
 
@@ -74,7 +85,6 @@ int input_off_model(std::istream& in, Tri& tri)
   auto set_vertex_color = [](Tri::Vertex_handle v,
                              const std::vector<double>& color, bool as_int) {
     assert(color.size() == 4);
-    // we only need the r,g,b components, ignore the alpha component here
     std::copy(color.begin(), color.begin() + 3, v->color.begin());
   };
 
@@ -86,6 +96,7 @@ int input_off_model(std::istream& in, Tri& tri)
   return 0;
 }
 
+// The main function
 int main(int argc, char** argv)
 {
 

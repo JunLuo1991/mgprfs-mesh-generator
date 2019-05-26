@@ -19,6 +19,8 @@
 // 
 // __END_OF_LICENSE__
 
+// This program is used for comparing the result of double convolution
+// versus single convolution
 
 #include <iostream>
 #include <string>

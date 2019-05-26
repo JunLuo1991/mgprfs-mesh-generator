@@ -38,7 +38,9 @@ output the mesh size.
 
 #include "pixel.hpp"
 
-// The make triangulation data structure
+/*
+@brief A structure for making the trinagulation
+*/
 struct Make_tri
 {
   class Tri_vertex;
@@ -65,15 +67,13 @@ struct Make_tri
 using Tri = Make_tri::Triangulation;
 
 // Read the off data into a triangulation from specified input stream
-int
-input_off_model(std::istream& in, Tri& tri)
+int input_off_model(std::istream& in, Tri& tri)
 {
 
   auto set_vertex_z = [](Tri::Vertex_handle v, double z) { v->z = z; };
   auto set_vertex_color = [](Tri::Vertex_handle v,
                              const std::vector<double>& color, bool as_int) {
     assert(color.size() == 4);
-    // we only need the r,g,b components, ignore the alpha component here
     std::copy(color.begin(), color.begin() + 3, v->color.begin());
   };
 

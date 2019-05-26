@@ -21,8 +21,9 @@
 
 
 
-// This program reads an image in PNM format and output its basic information
-// width, height, number of components, precision, max value
+// This program reads an image in PNM format from standard input
+// stream and output its mirrored image (i.e., vertical flipped image)
+// to standard output stream.
 
 #include <iostream>
 #include "image.hpp"
@@ -31,6 +32,7 @@
 int main(int argc, char ** argv )
 {
   Image input_image;
+  // Read the image from standard input stream
   if (auto status = input_image.input(std::cin); status) {
     return status;
   }
@@ -40,6 +42,7 @@ int main(int argc, char ** argv )
   int height = input_image.height();
   int num_comps = input_image.num_components();
 
+  // Construct the mirrored image
   Image mirror(width, height, prec, num_comps);
   for(int y = height - 1; y >= 0; --y) {
     for(int x = 0; x < width; ++x) {
@@ -49,6 +52,7 @@ int main(int argc, char ** argv )
     }
   }
 
+  // Output the mirrored image to standard output stream
   mirror.output(std::cout);
   std::cerr << "output mirror image complete!\n";
   return 0;

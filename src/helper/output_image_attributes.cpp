@@ -21,8 +21,9 @@
 
 
 
-// This program reads an image in PNM format and output its basic information
-// width, height, number of components, precision, max value
+// This program reads an image in PNM format from standard input stream
+// and output its basic information (i.e., width, height, number of components,
+// precision and max value) to standard output stream.
 
 #include <iostream>
 #include "image.hpp"
@@ -31,6 +32,7 @@
 int main(int argc, char ** argv )
 {
   Image input_image;
+  // read the image from standard input stream
   if (auto status = input_image.input(std::cin); status) {
     return status;
   }
@@ -38,6 +40,7 @@ int main(int argc, char ** argv )
   int prec = input_image.precision();
   int max_val = precision_to_value(prec);
 
+  // Output the image information
   std::cout << input_image.width() << "\n"
             << input_image.height() << "\n"
             << input_image.num_components() << "\n"

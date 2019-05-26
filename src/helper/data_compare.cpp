@@ -148,20 +148,28 @@ int main(int argc, char** argv)
 
     // for each row, rank the statistics
     for (int i = 0; i < num_rows; ++i) {
+
+      // a vector to store current row statistics
       std::vector<double> row_stats;
       for (int j = 0; j < num_cols; ++j) {
         row_stats.push_back(col_stats[j][i]);
       }
+
+      // sort the statistics in the current row
+      // so that their positions correspond to the rank
       if (comp_rule) {
         std::sort(row_stats.begin(), row_stats.end());
       } else {
         std::sort(row_stats.begin(), row_stats.end(), [](double a, double b){return a > b;});
       }
+
+      // map the statistics with ranks
       std::map<double, int> rank_map;
       for (int j = 0; j < num_cols; ++j) {
         rank_map.insert(std::make_pair(row_stats[j], j+1));
       }
 
+      // set the colum ranks based on the map
       for (int j = 0; j < num_cols; ++j) {
          if (rank_map.find(col_stats[j][i]) != rank_map.end()) {
            double rank = static_cast<double>(rank_map[col_stats[j][i]]);
@@ -173,10 +181,14 @@ int main(int argc, char** argv)
       }
     }
 
+    // A vector to record the mean rank of each column
     std::vector<double> mean_ranks(num_cols);
+    // A vector to record the standard deviation of each column
     std::vector<double> std_dev_ranks(num_cols);
+    // For each column...
     for (int i = 0; i < num_cols; ++i) {
       double sum = std::accumulate(col_ranks[i].begin(), col_ranks[i].end(), 0.0);
+      // Compute the mean rank
       double mean = sum / num_rows;
       double sqr_dev_sum = 0;
   
@@ -184,13 +196,14 @@ int main(int argc, char** argv)
          sqr_dev_sum += SPL::sqr(x - mean);
       }
 
+      // Compute the standard deviation
       std_dev_ranks[i] = std::sqrt(sqr_dev_sum / num_rows);
       mean_ranks[i] = mean;
 
     }
 
     std::cout.precision(2);
-
+    // Output the name of each column
     for(auto&& name: col_names) {
       std::cout << name << " ";
     }
@@ -198,26 +211,33 @@ int main(int argc, char** argv)
 
     std::cout.precision(2);
     std::cout << std::fixed;
+    // Output the mean rank of each column
     for (auto&& mean: mean_ranks) {
       std::cout << mean << " ";
     }
     std::cout << '\n';
 
+    // Output the standard deviation of each column
     for (auto&& std_dev: std_dev_ranks) {
       std::cout << std_dev << " ";
     }
     std::cout << "\n\n";
 
-  } else if (num_cols == 2) {   // if num_cols == 2, compare win ratio
+  } else if (num_cols == 2) {   // If num_cols == 2, compare win ratio
       int count_1 = 0;
       int count_2 = 0;
       int count_draw = 0;
 
       std::vector<double> diff;
 
+      // For each row...
       for (int i = 0; i < num_rows; ++i) {
+        // compute the differences between the two columns
 	double dif = col_stats[0][i] - col_stats[1][i];
 	diff.push_back(dif);
+
+        // count the number of rows that the first column win,
+        // the second column wins, or draw
         if (comp_rule) {
           if (col_stats[0][i] < col_stats[1][i]) {
             ++count_1;
@@ -237,15 +257,21 @@ int main(int argc, char** argv)
         }
       }
 
+      // sort the differences of all rows
       std::sort(diff.begin(), diff.end());
+      // get the meam difference
       double mean_diff = std::accumulate(diff.begin(), diff.end(), 0.0) / (diff.size());
+      // get the minimum difference
       double min_diff = diff.front();
+      // get the maximum difference
       double max_diff = diff.back();
       int mid_index = diff.size() / 2;
+      // get the medium difference
       double medium_diff = diff[mid_index];
       double count_greater_than = 0;
       double count_lower_than = 0;
-      
+     
+      // compute the minimum positive win margin of the first column
       double min_win_margin = max_diff;
       for(auto&& x : diff) {
          if(x > 0.01) {
@@ -254,6 +280,8 @@ int main(int argc, char** argv)
 	 }
       }
 
+      // count the number of cases the difference is lower than
+      // a value or greater than a value
       for(auto&& x : diff) {
          if(SPL::absVal(x) <= diff_lower_than) ++count_lower_than;
          if(SPL::absVal(x) >= diff_greater_than) ++count_greater_than;
