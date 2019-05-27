@@ -33,7 +33,7 @@ initial density (or size) through the option:
 
 **NOTE**: if an option has a default value, the default value is
 shown in the round bracket after the option.
-e.g., ``--debug-level $arg (=0)`` means ``$arg`` has a default value ``0``.
+e.g., ``--debug-level $arg (=0)`` indicates ``$arg`` has a default value ``0``.
 
 Options:
 
@@ -41,7 +41,7 @@ Options:
   Print a help message listing all free parameters and valid arguments for
   each parameter.
 
-  ``--debug-level arg (=0)``<br />
+  ``--debug-level $arg (=0)``<br />
   Set debug level.
 
   ``--history-file $arg ``<br />
@@ -114,7 +114,7 @@ Options:
   * ``mean``: use mean filter.
 
 
-  ``--smooth-direction arg (=both) ``<br />
+  ``--smooth-direction $arg (=both) ``<br />
   Specify the smoothing direction. Note: this option can take influence only
   when the ``initial-generator`` is ``ed``.
   Valid values for ``$arg`` are:
@@ -122,7 +122,7 @@ Options:
   * ``both``: smooth on both horizontal and vertical directions.
 
 
-  ``--smooth-bound-policy arg (=zero_ext)``<br />
+  ``--smooth-bound-policy $arg (=zero_ext)``<br />
    Specify the boundary handling policy used for smoothing.
    NOTE: This option can take influence only when the ``initial-generator``
    is ``ed``.
