@@ -50,9 +50,10 @@ TO BE RELEASED TO PUBLIC AT THIS TIME.
 ```
 
 ### Install the Software
-In what follows, let $TOP_DIR denote the top-level directory of the mesh generator software distribution (i.e., the directory containing the
-README.md file); let $BUILD_DIR denote a new directory to be created for
-building the software; and let $INSTALL_DIR denote the directory in which
+In what follows, let ``$TOP_DIR`` denote the top-level directory of the
+mesh generator software distribution (i.e., the directory containing the
+README.md file); let ``$BUILD_DIR`` denote a new directory to be created for
+building the software; and let ``$INSTALL_DIR`` denote the directory in which
 to install the software.
 
 To install the mesh generator software with CMake, run following
