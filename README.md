@@ -1,4 +1,4 @@
-# An Effective Triangle Mesh Generation Software For Grayscale or RGB Color Images
+# An Effective Triangle Mesh Generation Software For Grayscale and RGB Color Images
 
 This software was developed by Jun Luo as part of his Master of Applied Science
 thesis project.
