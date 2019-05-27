@@ -58,7 +58,7 @@ to install the software.
 To install the mesh generator software with CMake, run following
   commands in order:
 
-1. ``cmake -H$TOP_DIR -B$BINARY_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR``<br \>
+1. ``cmake -H$TOP_DIR -B$BINARY_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR``<br />
 2. `` cmake --build $BINARY_DIR --target install``
 
 
