@@ -4,8 +4,10 @@ This software was developed by Jun Luo as part of his Master of Applied Science
 thesis project.
 
 This software can be used to effectively generate a Delaunay triangle mesh model
-of a grayscale or RGB color image. The source code can be found in the directory src.
-The detailed documentation of the software can be found in the directory doc.
+of a grayscale or RGB color image. The source code can be found in the directory
+[src](src/).
+The detailed documentation of how to use the software can be found in
+[Software Command Line Interface](doc/command_line_interface.md).
 
 A thesis wrote based on this software can be found in
 [Jun Luo MASc Thesis](doc/Jun_Luo_MASc_Thesis.pdf).
@@ -61,7 +63,3 @@ To install the mesh generator software with CMake, run following
 
 1. ``cmake -H$TOP_DIR -B$BINARY_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR``<br />
 2. `` cmake --build $BINARY_DIR --target install``
-
-
-## Using the Software
-Detailed information on the use of the software can be found in [Software Command Line Interface](doc/command_line_interface.md).
