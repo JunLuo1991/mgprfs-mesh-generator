@@ -16,6 +16,11 @@ viewed in the thesis.
 Jun Luo can be reached at the following email:
 * junluo152@gmail.com
 
+|<img src = "doc/bull.png" width = "400" height = "400"> |
+<img src = "doc/mgprfs_bull_tri.png" width = "400" height  = "400">
+
+
+
 ## Installation
 ### Prerequisite Libraries.
 
